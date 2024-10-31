@@ -16,8 +16,8 @@ class EML_ASSIGNMENT_API UAIMessenger : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "AI Messenger")
-	static void SendMessageToAI(FString message);
+	void SendMessageToAI(FString message);
 
 	UFUNCTION(BlueprintCallable, Category = "AI Messenger")
-	static FString ReceiveMessageFromAI();
+	void ReceiveMessageFromAI(FHttpRequestPtr request, FHttpResponsePtr response, bool connected);
 };

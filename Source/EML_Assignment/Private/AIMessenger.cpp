@@ -7,15 +7,14 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-#define MODEL_URL "http://localhost:11434/api/generate"
+constexpr auto MODEL_URL = "http://localhost:11434/api/generate";
 
 void UAIMessenger::SendMessageToAI(FString message)
 {
+	// TODO: check if message is empty or white space
+
 	FHttpModule &httpModule = FHttpModule::Get();
 	FHttpRequestRef request = httpModule.CreateRequest();
-
-	request->SetVerb("POST");
-	request->SetHeader("Content-Type", "application/json");
 
 	TSharedRef<FJsonObject> json = MakeShared<FJsonObject>();
 	json->SetStringField("model", "llama3.2");
@@ -27,14 +26,17 @@ void UAIMessenger::SendMessageToAI(FString message)
 
 	request->SetContentAsString(body);
 	request->SetURL(MODEL_URL);
-
-	// TODO: write callback for handling HTTP response
-
+	request->SetVerb("POST");
+	request->SetHeader("Content-Type", "application/json");
+	request->OnProcessRequestComplete().BindUObject(this, &UAIMessenger::ReceiveMessageFromAI);
 	request->ProcessRequest();
 }
 
-FString UAIMessenger::ReceiveMessageFromAI()
+void UAIMessenger::ReceiveMessageFromAI(FHttpRequestPtr request, FHttpResponsePtr response, bool connected)
 {
+	if (!connected) {
+		// TODO: handle errors
+	}
+
 	// TODO: implement
-	return FString();
 }
