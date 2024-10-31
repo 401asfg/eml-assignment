@@ -12,14 +12,21 @@
 void UAIMessenger::SendMessageToAI(FString message)
 {
 	FHttpModule &httpModule = FHttpModule::Get();
+	FHttpRequestRef request = httpModule.CreateRequest();
 
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> request = httpModule.CreateRequest();
-	request->SetVerb(TEXT("POST"));
-	request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	request->SetVerb("POST");
+	request->SetHeader("Content-Type", "application/json");
 
-	FString json = TEXT("{ \"model\": \"llama3.2\", \"prompt\": \"") + message + TEXT("\" }");
-	request->SetContentAsString(json);
-	request->SetURL(TEXT(MODEL_URL));
+	TSharedRef<FJsonObject> json = MakeShared<FJsonObject>();
+	json->SetStringField("model", "llama3.2");
+	json->SetStringField("prompt", message);
+
+	FString body;
+	TSharedRef<TJsonWriter<>> writer = TJsonWriterFactory<>::Create(&body);
+	FJsonSerializer::Serialize(json, writer);
+
+	request->SetContentAsString(body);
+	request->SetURL(MODEL_URL);
 
 	// TODO: write callback for handling HTTP response
 
