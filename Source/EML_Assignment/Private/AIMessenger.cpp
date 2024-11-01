@@ -7,9 +7,21 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
+FString UAIMessenger::prevMessage = "";
+
 void UAIMessenger::SendMessageToAI(FString modelUrl, FString message, UTextBlock *textBlock)
 {
-	// TODO: check if message is empty or white space
+	if (message.IsEmpty()) {
+		UAIMessenger::ReceiveMessageFromAI(FString("Error: Message was empty."), textBlock);
+		return;
+	}
+
+	if (message.Compare(UAIMessenger::prevMessage) == 0) {
+		UAIMessenger::ReceiveMessageFromAI(FString("Error: Message was the same as the previous."), textBlock);
+		return;
+	}
+
+	UAIMessenger::prevMessage = message;
 
 	FHttpModule &httpModule = FHttpModule::Get();
 	FHttpRequestRef request = httpModule.CreateRequest();
@@ -32,12 +44,18 @@ void UAIMessenger::SendMessageToAI(FString modelUrl, FString message, UTextBlock
 			FHttpResponsePtr response,
 			bool connected) mutable
 		{
-			if (!connected) {
-				// TODO: handle errors
-				return;
+			FString content;
+
+			if (connected) content = response->GetContentAsString();
+			else switch (request->GetStatus()) {
+			case EHttpRequestStatus::Failed_ConnectionError:
+				content = FString("Error: Connection failed.");
+				break;
+			default:
+				content = FString("Error: Request failed.");
 			}
 
-			UAIMessenger::ReceiveMessageFromAI(response->GetContentAsString(), textBlock);
+			UAIMessenger::ReceiveMessageFromAI(content, textBlock);
 		}
 	);
 
@@ -46,5 +64,7 @@ void UAIMessenger::SendMessageToAI(FString modelUrl, FString message, UTextBlock
 
 void UAIMessenger::ReceiveMessageFromAI(FString message, UTextBlock *textBlock)
 {
-	textBlock->SetText(FText::FromString(message));
+	if (textBlock) {
+		textBlock->SetText(FText::FromString(message));
+	}
 }
