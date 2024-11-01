@@ -7,9 +7,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-constexpr auto MODEL_URL = "http://localhost:11434/api/generate";
-
-void UAIMessenger::SendMessageToAI(FString message)
+void UAIMessenger::SendMessageToAI(FString modelUrl, FString message, UTextBlock *textBlock)
 {
 	// TODO: check if message is empty or white space
 
@@ -25,18 +23,28 @@ void UAIMessenger::SendMessageToAI(FString message)
 	FJsonSerializer::Serialize(json, writer);
 
 	request->SetContentAsString(body);
-	request->SetURL(MODEL_URL);
+	request->SetURL(modelUrl);
 	request->SetVerb("POST");
 	request->SetHeader("Content-Type", "application/json");
-	request->OnProcessRequestComplete().BindUObject(this, &UAIMessenger::ReceiveMessageFromAI);
+
+	request->OnProcessRequestComplete().BindLambda(
+		[&](FHttpRequestPtr request,
+			FHttpResponsePtr response,
+			bool connected) mutable
+		{
+			if (!connected) {
+				// TODO: handle errors
+				return;
+			}
+
+			UAIMessenger::ReceiveMessageFromAI(response->GetContentAsString(), textBlock);
+		}
+	);
+
 	request->ProcessRequest();
 }
 
-void UAIMessenger::ReceiveMessageFromAI(FHttpRequestPtr request, FHttpResponsePtr response, bool connected)
+void UAIMessenger::ReceiveMessageFromAI(FString message, UTextBlock *textBlock)
 {
-	if (!connected) {
-		// TODO: handle errors
-	}
-
-	// TODO: implement
+	textBlock->SetText(FText::FromString(message));
 }

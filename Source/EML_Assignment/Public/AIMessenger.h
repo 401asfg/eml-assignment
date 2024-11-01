@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Components/TextBlock.h"
 #include "AIMessenger.generated.h"
 
 /**
@@ -16,8 +17,8 @@ class EML_ASSIGNMENT_API UAIMessenger : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "AI Messenger")
-	void SendMessageToAI(FString message);
+	static void SendMessageToAI(FString modelUrl, FString message, UTextBlock *textBlock);
 
 	UFUNCTION(BlueprintCallable, Category = "AI Messenger")
-	void ReceiveMessageFromAI(FHttpRequestPtr request, FHttpResponsePtr response, bool connected);
+	static void ReceiveMessageFromAI(FString message, UTextBlock *textBlock);
 };

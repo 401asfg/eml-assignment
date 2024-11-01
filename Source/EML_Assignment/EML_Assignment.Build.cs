@@ -10,7 +10,7 @@ public class EML_Assignment : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "JSON" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "Json", "UMG" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
