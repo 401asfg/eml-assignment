@@ -16,8 +16,6 @@ class EML_ASSIGNMENT_API UAIMessenger : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	static FString prevMessage;
-
 	UFUNCTION(BlueprintCallable, Category = "AI Messenger")
 	static void SendMessageToAI(FString modelUrl, FString message, UTextBlock *textBlock);
 

@@ -7,21 +7,12 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-FString UAIMessenger::prevMessage = "";
-
 void UAIMessenger::SendMessageToAI(FString modelUrl, FString message, UTextBlock *textBlock)
 {
 	if (message.IsEmpty()) {
 		UAIMessenger::ReceiveMessageFromAI(FString("Error: Message was empty."), textBlock);
 		return;
 	}
-
-	if (message.Compare(UAIMessenger::prevMessage) == 0) {
-		UAIMessenger::ReceiveMessageFromAI(FString("Error: Message was the same as the previous."), textBlock);
-		return;
-	}
-
-	UAIMessenger::prevMessage = message;
 
 	FHttpModule &httpModule = FHttpModule::Get();
 	FHttpRequestRef request = httpModule.CreateRequest();
